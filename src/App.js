@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import Forecasts from './Forecasts';
+
 const api = {
   key: "3a2bfc5f26cd1e3529632deb662e82aa",
   base: "https://api.openweathermap.org/data/2.5/"
@@ -7,18 +9,27 @@ const api = {
 function App() {
   const [query, setQuery] = useState('');
   const [weather, setWeather] = useState({});
+  const [forecast, setForecast] = useState([]);
+  const [dateSet, setDateSet] = useState([]);
 
   const search = evt => {
     if (evt.key === "Enter") {
-      fetch(`${api.base}weather?q=${query}&units=metric&APPID=${api.key}`)
+      fetch(`${api.base}weather?q=${query}&units=metric&exclude=current,minutely,hourly,alerts&APPID=${api.key}`)
         .then(res => res.json())
         .then(result => {
           setWeather(result);
           setQuery('');
           console.log(result);
         });
+      fetch(`${api.base}/forecast?q=${query}&units=metric&APPID=${api.key}`)
+        .then(res => res.json())
+        .then(result => {
+          setForecast(result);
+          console.log(result);
+      });  
     }
   }
+
 
   const dateBuilder = (d) => {
     let months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -56,11 +67,15 @@ function App() {
               {Math.round(weather.main.temp)}°c
             </div>
             <div className="weather">{weather.weather[0].main}</div>
+            <div className="forecast">
+              <Forecasts forecast={forecast}/>
+            </div>
           </div>
         </div>
         ) : ('')}
       </main>
     </div>
+    
   );
 }
 
